@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>EFI Updater</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h1>opencore-h410sb — обновление EFI</h1>
+
+<section>
+  <label>Путь к папке EFI/OC (например /Volumes/FAT32-16GB/EFI/OC или клон репо):</label>
+  <div class="row">
+    <input id="root" type="text" placeholder="/Volumes/FAT32-16GB/EFI/OC" size="50">
+    <select id="channel">
+      <option value="stable">stable</option>
+      <option value="prerelease">prerelease</option>
+    </select>
+    <button onclick="scanRoot()">Сканировать</button>
+    <button onclick="checkUpdates()">Проверить обновления</button>
+  </div>
+</section>
+
+<section id="components-section" hidden>
+  <h2>Кексты</h2>
+  <table id="components-table">
+    <thead><tr><th></th><th>Компонент</th><th>Локально</th><th>Актуально</th><th>Статус</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="updateSelectedKexts()">Обновить выбранные</button>
+</section>
+
+<section id="opencore-section" hidden>
+  <h2>OpenCorePkg</h2>
+  <div id="opencore-info"></div>
+  <div class="row">
+    <label><input type="checkbox" id="oc-part-efi" checked> OpenCore.efi</label>
+    <label><input type="checkbox" id="oc-part-drivers" checked> Drivers/*.efi</label>
+    <label><input type="checkbox" id="oc-part-resources"> Resources/ (тема, из этого же релиза)</label>
+  </div>
+  <button onclick="updateOpenCore()">Обновить выбранное</button>
+</section>
+
+<section id="drivers-section" hidden>
+  <h2>Drivers/*.efi (текущее состояние)</h2>
+  <table id="drivers-table">
+    <thead><tr><th>Файл</th><th>Последняя известная версия (по этому инструменту)</th><th>Изменился с тех пор?</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Тема (Resources/)</h2>
+  <div class="row">
+    <input id="theme-repo" type="text" placeholder="owner/repo, напр. acidanthera/OcBinaryData" size="40">
+    <input id="theme-ref" type="text" placeholder="ветка/тег (необязательно)" size="20">
+    <button onclick="applyTheme()">Скачать и применить в Resources/</button>
+  </div>
+  <p class="hint">Официальная тема — acidanthera/OcBinaryData. Любой другой репозиторий с папкой Resources/
+  (Image/Label/Font в нужной структуре) тоже подойдёт — на свой риск, я его не проверяю.</p>
+</section>
+
+<section>
+  <h2>Миграция config.plist на новую версию OpenCore</h2>
+  <p class="hint">Берёт ваш текущий <code>config.plist</code> + <code>Docs/Sample.plist</code> из выбранного канала/релиза
+  OpenCorePkg, переносит ваши значения туда, где путь ключа и его тип совпадают. Ничего не перезаписывает молча —
+  результат сохраняется в отдельный файл, отчёт показывает, что перенеслось, что осталось дефолтным, что несовместимо
+  по типу и что убрали из новой схемы.</p>
+  <div class="row">
+    <button onclick="previewMigration()">Показать отчёт (ничего не пишет на диск)</button>
+    <button onclick="saveMigration()">Сохранить как config.migrated.plist</button>
+  </div>
+  <pre id="migration-report" class="report"></pre>
+</section>
+
+<pre id="log"></pre>
+
+<script src="/app.js"></script>
+</body>
+</html>
